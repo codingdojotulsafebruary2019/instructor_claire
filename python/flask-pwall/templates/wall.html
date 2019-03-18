@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Private Wall</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark mb-3">
+        <div class="container">
+            <a class="navbar-brand text-light">Private Wall</a>
+            <div>
+                <span class="navbar-text mr-4">Welcome, {{session['greeting_name']}}</span>
+                <a href="/logout" class="badge badge-info p-2">Logout</a>
+            </div>
+        </div>
+    </nav>
+</body>
+<div class="container">
+    <div class="row">
+        <div class="col-6 px-2" style="border-right: 2px solid black !important;">
+            <h2># Messages for you</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    {% for user in users %}
+                            <div class="container">
+                                {% if user.id == message.from_user %}
+                                    <h5> {{user.first_name}} said:</h5>
+                                    <span class="ml-3">{{message.content}}</span>
+                                    <a href="/delete/{{message.id}}" class="badge badge-danger ml-3">Delete</a>
+                                {% endif %}
+                            </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="col-6 px-2">
+            <h2>Send Messages</h2>
+            {% with errors = get_flashed_messages(category_filter=["message"]) %}
+            {% if errors %}
+            <ul>
+                {%- for msg in errors %}
+                <li>{{ msg }}</li>
+                {% endfor -%}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            <form action="/create" method="post">
+                {% for user in users %}
+                {% if user.id != session.id %}
+                <p>{{user.first_name}}</p>
+                <div class="input-group mb-3">
+                    <input type="hidden" name="to_user" value={{user.id}}>
+                    <input type="text" class="form-control" name="content">
+                    <div class="input-group-append">
+                        <button class="btn btn-warning" type="submit">Send</button>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+</div>
+
+</html>
